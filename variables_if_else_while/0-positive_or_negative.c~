@@ -1,0 +1,33 @@
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+
+/**
+ * main - Entry point
+ *
+ * Description: Print whether the number is positive, zero, or negative
+ *
+ * Return: 0 (Success)
+ */
+int main(void)
+{
+int n;
+
+srand(time(0)); // Initialiser le générateur de nombres aléatoires
+n = rand() - RAND_MAX / 2; // Générer un nombre aléatoire
+
+if (n > 0)
+{
+printf("%d is positive\n", n); // Afficher si le nombre est positif
+}
+else if (n == 0)
+{
+printf("%d is zero\n", n); // Afficher si le nombre est zéro
+}
+else
+{
+printf("%d is negative\n", n); // Afficher si le nombre est négatif
+}
+
+return (0);
+}
