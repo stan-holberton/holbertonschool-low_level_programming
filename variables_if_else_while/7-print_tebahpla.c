@@ -10,10 +10,10 @@
  */
 int main(void)
 {
-    int i;
+	int i;
 
-    for (i = 122; i >= 97; i--)  /* 'z' = 122, 'a' = 97 */
-        putchar(i);
-    putchar('\n');
-    return (0);
+	for (i = 122; i >= 97; i--)  /* 'z' = 122, 'a' = 97 */
+		putchar(i);
+	putchar('\n');
+	return (0);
 }
