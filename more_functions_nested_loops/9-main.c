@@ -1,11 +1,12 @@
 #include "main.h"
+
 /**
- * main - check the code for Fizz-Buzz
+ * main - Entry point
  *
- * Return: Always 0.
+ * Return: Always 0 (Success)
  */
 int main(void)
 {
 fizz_buzz();
-return (0);
+return 0;
 }
