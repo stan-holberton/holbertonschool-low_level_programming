@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 /**
- * main - check the code
+ * main - Code de test pour la fonction print_chessboard
  *
- * Return: Always 0.
+ * Return: Toujours 0 (succès)
  */
 int main(void)
 {
