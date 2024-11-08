@@ -2,11 +2,11 @@
 #include <stdlib.h>
 
 /**
-*main - multiplies two numbers
-*@argc: argument count
-*@argv: argument vector
+* main - multiplies two numbers
+* @argc: argument count
+* @argv: argument vector
 *
-*Return: Always 0 (Success), 1 if error
+* Return: Always 0 (Success), 1 if error
 */
 int main(int argc, char *argv[])
 {
@@ -20,7 +20,7 @@ return (1);
 
 num1 = atoi(argv[1]);
 num2 = atoi(argv[2]);
-result = num1 * num2;
+result = num1 *num2;
 
 printf("%d\n", result);
 return (0);
