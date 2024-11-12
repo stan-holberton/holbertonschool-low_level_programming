@@ -1,0 +1,62 @@
+#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+/**
+ * alloc_grid - Alloue une grille 2D d'entiers et initialise à 0.
+ * @width: largeur de la grille.
+ * @height: hauteur de la grille.
+ *
+ * Return: Pointeur vers la grille allouée, NULL en cas d'échec.
+ */
+int **alloc_grid(int width, int height)
+{
+	int **grid;
+	int i;
+
+	if (width <= 0 || height <= 0)
+		return (NULL);
+
+	grid = malloc(sizeof(int *) * height);
+	if (grid == NULL)
+		return (NULL);
+
+	for (i = 0; i < height; i++)
+	{
+		grid[i] = malloc(sizeof(int) * width);
+		if (grid[i] == NULL)
+		{
+			while (i >= 0)
+			{
+				free(grid[i]);
+				i--;
+			}
+			free(grid);
+			return (NULL);
+		}
+		for (int j = 0; j < width; j++)
+		{
+			grid[i][j] = 0;  /* Initialiser les valeurs à 0 */
+		}
+	}
+	return (grid);
+}
+
+/**
+ * free_grid - Libère la mémoire allouée pour une grille 2D.
+ * @grid: grille à libérer.
+ * @height: hauteur de la grille.
+ */
+void free_grid(int **grid, int height)
+{
+	int i;
+
+	if (grid != NULL)
+	{
+		for (i = 0; i < height; i++)
+		{
+			free(grid[i]);
+		}
+		free(grid);
+	}
+}
