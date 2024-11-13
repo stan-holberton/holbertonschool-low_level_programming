@@ -32,4 +32,15 @@ void init_dog(struct dog *d, char *name, float age, char *owner);
  */
 void print_dog(struct dog *d);
 
+/**
+ * new_dog - Crée une nouvelle structure dog
+ * @name: Nom du chien
+ * @age: Âge du chien
+ * @owner: Propriétaire du chien
+ *
+ * Return: Pointeur vers la nouvelle structure, ou NULL en cas d'échec
+ */
+dog_t *new_dog(char *name, float age, char *owner);
+
+
 #endif /* DOG_H */
