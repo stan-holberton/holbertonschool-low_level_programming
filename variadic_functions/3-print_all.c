@@ -1,46 +1,48 @@
 #include "variadic_functions.h"
+#include <stdio.h>
+#include <stdarg.h>
 
 /**
- * print_all - Affiche divers types d'arguments.
- * @format: Liste des types d'arguments.
+ * print_all - Affiche différents types d'arguments
+ * @format: Liste des types d'arguments à afficher
  *
- * Description : Cette fonction parcourt la chaîne format.
- * Elle affiche les arguments selon leurs types (c, i, f, s).
- * Une chaîne NULL est remplacée par "(nil)".
+ * Description: Parcourt "format" pour afficher chaque argument selon son type.
  */
 void print_all(const char * const format, ...)
 {
-	va_list args; /* Liste des arguments */
-	char *str, *separator; /* Chaîne de séparation entre les valeurs */
-	unsigned int i; /* Compteur pour parcourir la chaîne format */
+	va_list args; /* Liste des arguments variadiques */
+	unsigned int i = 0; /* Index pour parcourir "format" */
+	char *str; /* Pour afficher les chaînes */
+	char *separator = ""; /* Séparateur entre les arguments */
 
-	va_start(args, format); /* Initialisation de la liste */
-	separator = ""; /* Initialisation de la chaîne de séparation */
-	i = 0;
+	va_start(args, format); /* Démarre la liste des arguments */
 
-	while (format && format[i]) /* Vérifie si format est non NULL */
+	while (format && format[i]) /* Parcourt la chaîne "format" */
 	{
-		switch (format[i]) /* Sélectionne l'action selon le type */
+		switch (format[i]) /* Vérifie le type d'argument */
 		{
-		case 'c': /* Type caractère */
+		case 'c': /* Affiche un caractère */
 			printf("%s%c", separator, va_arg(args, int));
 			break;
-		case 'i': /* Type entier */
+		case 'i': /* Affiche un entier */
 			printf("%s%d", separator, va_arg(args, int));
 			break;
-		case 'f': /* Type flottant */
+		case 'f': /* Affiche un flottant */
 			printf("%s%f", separator, va_arg(args, double));
 			break;
-		case 's': /* Type chaîne */
+		case 's': /* Affiche une chaîne */
 			str = va_arg(args, char *);
-			if (!str) /* Vérifie si la chaîne est NULL */
+			if (!str) /* Si NULL, affiche "(nil)" */
 				str = "(nil)";
 			printf("%s%s", separator, str);
 			break;
+		default: /* Ignore les types non valides */
+			i++;
+			continue;
 		}
-		separator = ", "; /* Ajoute la séparation pour la suite */
-		i++;
+		separator = ", "; /* Met à jour le séparateur */
+		i++; /* Passe au type suivant */
 	}
-	printf("\n"); /* Ajoute un saut de ligne à la fin */
-	va_end(args); /* Libère la mémoire utilisée par va_list */
+	printf("\n"); /* Ajoute un saut de ligne final */
+	va_end(args); /* Termine la liste des arguments */
 }
