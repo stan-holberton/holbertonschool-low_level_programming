@@ -4,9 +4,9 @@
 #include "lists.h"
 
 /**
- * main - vérifie le bon fonctionnement du code
+ * main - Point d'entrée pour tester la fonction add_node
  *
- * Return: Toujours 0.
+ * Return: Toujours 0 (succès)
  */
 int main(void)
 {

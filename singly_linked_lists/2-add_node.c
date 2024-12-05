@@ -3,31 +3,37 @@
 #include "lists.h"
 
 /**
- * add_node - Ajoute un nouveau nœud au début de la liste.
- * @head: Double pointeur vers le premier élément de la liste.
- * @str: Chaîne de caractères à insérer dans le nouveau nœud.
+ * add_node - Ajoute un nouveau nœud en tête d'une liste list_t
+ * @head: Double pointeur vers le premier nœud de la liste
+ * @str: Chaîne à ajouter au nouveau nœud
  *
- * Return: L'adresse du nouvel élément, ou NULL si l'ajout a échoué.
+ * Return: Adresse du nouveau nœud, ou NULL en cas d'échec
  */
 list_t *add_node(list_t **head, const char *str)
 {
 	list_t *new_node;
+	char *dup_str;
+	unsigned int len = 0;
 
-	/* Allocation d'un nouveau nœud */
-	new_node = malloc(sizeof(list_t));
-	if (new_node == NULL)
+	if (str == NULL)
 		return (NULL);
 
-	/* Duplication de la chaîne */
-	new_node->str = strdup(str);
-	if (new_node->str == NULL)
+	dup_str = strdup(str);
+	if (dup_str == NULL)
+		return (NULL);
+
+	while (str[len])
+		len++;
+
+	new_node = malloc(sizeof(list_t));
+	if (new_node == NULL)
 	{
-		free(new_node);
+		free(dup_str);
 		return (NULL);
 	}
 
-	/* Initialisation du nouveau nœud */
-	new_node->len = strlen(str);
+	new_node->str = dup_str;
+	new_node->len = len;
 	new_node->next = *head;
 	*head = new_node;
 
