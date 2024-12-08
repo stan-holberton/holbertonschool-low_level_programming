@@ -1,75 +1,133 @@
-#include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <string.h>
-
-#define BUF_SIZE 1024
+#include <fcntl.h>
+#include "main.h"
 
 /**
- * error_exit - Handles errors and exits the program.
- * @message: The error message to display.
- * @code: The exit code.
+ * close_file - Close file from file descriptor
+ * @file_desc: File descriptor
+ * Return: Nothing (void)
  */
-void error_exit(char *message, int code)
+void close_file(int file_desc)
 {
-	dprintf(STDERR_FILENO, "%s", message);
-	exit(code);
+	if (close(file_desc) == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", file_desc);
+		exit(100);
+	}
 }
 
 /**
- * copy_file - Copies the content of one file to another.
- * @from_fd: File descriptor of the source file.
- * @to_fd: File descriptor of the destination file.
- *
- * Return: 0 on success, or exits with a code on failure.
+ * error98 - Display error 98
+ * Description: file_from not exist or cannot be read: exit with code 98
+ * @filename: File name cause the error
+ * Return: Nothing (void)
  */
-void copy_file(int from_fd, int to_fd)
+void error98(char *filename)
 {
-	ssize_t bytes_read, bytes_written;
-	char buffer[BUF_SIZE];
+	dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", filename);
+	exit(98);
+}
 
-	while ((bytes_read = read(from_fd, buffer, BUF_SIZE)) > 0)
+/**
+ * error99 - Display error 99
+ * Description: file_to can't be created or writing fail: exit with code 99
+ * @filename: File name cause the error
+ * Return: Nothing (void)
+ */
+void error99(char *filename)
+{
+	dprintf(STDERR_FILENO, "Error: Can't write to %s\n", filename);
+	exit(99);
+}
+
+/**
+ * copy_content - Copies the content from one file descriptor to another
+ * Description:
+ * Read the file in chunks of 1024 bytes (buffer size)
+ * The file offset automatically advances after each read
+ * Repeat the process until the number of bytes read is less than the
+ * buffer size
+ *
+ * @file_desc_from: Source file descriptor.
+ * @file_desc_to: Destination file descriptor.
+ * @buffer: Buffer for data
+ * @buffer_size: Size of the buffer.
+ * @file_from: Source filename
+ * @file_to: Destination filename
+ * Return: nothing (void)
+ */
+void copy_content(int file_desc_from, int file_desc_to, char *buffer,
+	ssize_t buffer_size, char *file_from, char *file_to)
+{
+	ssize_t nb_byte_read = 0;
+	ssize_t nb_print_char = 0;
+
+	while ((nb_byte_read = read(file_desc_from, buffer, buffer_size)) > 0)
 	{
-		bytes_written = write(to_fd, buffer, bytes_read);
-		if (bytes_written == -1)
-			error_exit("Error: Can't write to ", 99);
+		/* error check for read */
+		if (nb_byte_read == -1)
+			error98(file_from);
+
+		nb_print_char = write(file_desc_to, buffer, nb_byte_read);
+
+		/* error check for write */
+		if (nb_print_char == -1 || nb_print_char != nb_byte_read)
+			error99(file_to);
 	}
 
-	if (bytes_read == -1)
-		error_exit("Error: Can't read from file ", 98);
+	/* If read returned -1 outside the loop */
+	if (nb_byte_read == -1)
+		error98(file_from);
 }
 
 /**
- * main - Copies the content of one file to another.
- * @argc: The number of arguments.
- * @argv: The arguments array.
- *
- * Return: 0 on success, or exits with a code on failure.
+ * main - copies the content of a file to another file
+ * Description: This program is an ersatz of the 'cp' command
+ * Error code:
+ * - If the number of arguments is incorrect: exit with code 97
+ * - If file_from not exist or cannot be read: exit with code 98
+ * - If file_to can't be created or writing to it fail: exit with code 99
+ * - If a file descriptor cannot be closed, exit with code 100
+ * @argc: number of argument passed in the function
+ * @argv: array of arguments
+ * Return: always 0
  */
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-	int from_fd, to_fd;
+	/* declare variables */
+	char *file_from = argv[1];
+	char *file_to = argv[2];
+	int file_desc_from = -1, file_desc_to = -1;
+	const ssize_t buffer_size = 1024;
+	char text_buffer[1024];
 
+	/* Check the number of argument */
 	if (argc != 3)
-		error_exit("Usage: cp file_from file_to\n", 97);
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n"), exit(97);
 
-	from_fd = open(argv[1], O_RDONLY);
-	if (from_fd == -1)
-		error_exit("Error: Can't read from file ", 98);
+	/* try to open the source file */
+	file_desc_from = open(file_from, O_RDONLY);
+	if (file_desc_from == -1)
+		error98(file_from);
 
-	to_fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0664);
-	if (to_fd == -1)
-		error_exit("Error: Can't write to ", 99);
+	/* Try to open destination file */
+	file_desc_to = open(file_to, O_WRONLY | O_TRUNC);
 
-	copy_file(from_fd, to_fd);
+	if (file_desc_to == -1)	/* If the file doesn't exist, create it */
+		file_desc_to = open(file_to, O_CREAT | O_WRONLY | O_TRUNC, 0664);
 
-	if (close(from_fd) == -1)
-		error_exit("Error: Can't close fd ", 100);
+	if (file_desc_to == -1)	/* error check */
+		error99(file_to);
 
-	if (close(to_fd) == -1)
-		error_exit("Error: Can't close fd ", 100);
+	/* Call copy_content function */
+	copy_content(file_desc_from, file_desc_to, text_buffer, buffer_size,
+		file_from, file_to);
+
+	/* close each document */
+	close_file(file_desc_from);
+	close_file(file_desc_to);
 
 	return (0);
 }
