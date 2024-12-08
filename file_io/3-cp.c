@@ -5,58 +5,58 @@
 #include <unistd.h>
 #include <string.h>
 
+#define BUF_SIZE 1024
+#define BUF_SIZE 1024
+
 /**
- * error_exit - Handles errors and exits the program
- * @msg: The error message
- * @code: Exit code
+ * error_exit - Handles errors and exits the program.
+ * @message: The error message to display.
+ * @code: The exit code.
  */
-void error_exit(const char *msg, int code)
+void error_exit(const char *message, int code)
 {
-	write(STDERR_FILENO, msg, strlen(msg)); /* utilise la fct strlen */
+	dprintf(STDERR_FILENO, "%s", message);
 	exit(code);
 }
 
 /**
- * main - Copies content from one file to another
- * @argc: Number of arguments
- * @argv: Array of argument strings
+ * main - Copies the content of one file to another.
+ * @argc: The number of arguments.
+ * @argv: The arguments array.
  *
- * Return: 0 on success, exit code otherwise
+ * Return: 0 on success, or exits with a code on failure.
  */
 int main(int argc, char *argv[])
 {
-	int file_from, file_to, read_count;
-	char buffer[1024];
+	int fd_from, fd_to, read_bytes, write_bytes;
+	char buffer[BUF_SIZE];
 
 	if (argc != 3)
 		error_exit("Usage: cp file_from file_to\n", 97);
 
-	file_from = open(argv[1], O_RDONLY);
-	if (file_from == -1)
-		error_exit("Error: Can't read from file\n", 98);
+	fd_from = open(argv[1], O_RDONLY);
+	if (fd_from == -1)
+		error_exit("Error: Can't read from file ", 98);
 
-	file_to = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0664);
-	if (file_to == -1)
+	fd_to = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0664);
+	if (fd_to == -1)
+		error_exit("Error: Can't write to file ", 99);
+
+	while ((read_bytes = read(fd_from, buffer, BUF_SIZE)) > 0)
 	{
-		close(file_from);
-		error_exit("Error: Can't write to file\n", 99);
+		write_bytes = write(fd_to, buffer, read_bytes);
+		if (write_bytes == -1)
+			error_exit("Error: Can't write to file ", 99);
 	}
 
-	while ((read_count = read(file_from, buffer, 1024)) > 0)
-	{
-		if (write(file_to, buffer, read_count) != read_count)
-		{
-			close(file_from);
-			close(file_to);
-			error_exit("Error: Can't write to file\n", 99);
-		}
-	}
+	if (read_bytes == -1)
+		error_exit("Error: Can't read from file ", 98);
 
-	if (read_count == -1)
-		error_exit("Error: Can't read from file\n", 98);
+	if (close(fd_from) == -1)
+		error_exit("Error: Can't close fd ", 100);
 
-	close(file_from);
-	close(file_to);
+	if (close(fd_to) == -1)
+		error_exit("Error: Can't close fd ", 100);
 
 	return (0);
 }
